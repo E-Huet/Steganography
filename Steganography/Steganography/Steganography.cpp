@@ -5,7 +5,7 @@
 #include <stdexcept>
 //#include <typeinfo>
 
-#include "Code.h"
+#include "Encode.h"
 #include "Parser.h"
 
 using namespace std;
@@ -13,9 +13,6 @@ using namespace std;
 int main(int argc, char** argv)
 {
     /*
-    std::string command = argv[1];
-    std::string path = argv[2];
-    std::string message = argv[3];
 
     argument 1 -> encode / decode
     encode
@@ -36,16 +33,15 @@ int main(int argc, char** argv)
         cout << tab[i] << "\n";
     }
 
-
+    cout << argc << endl;
     if (argc > 1 && tab[1] == "encode")
     {
-        if (argc != 5)
+        if (argc != 6)
         {
             throw std::runtime_error("Wrong number of arguments");
         }
         cout << "fonctionne" << endl;
-        Encode(tab[3], tab[5]);
-        SetMessage(tab[2], tab[4]);
+        SetMessage(tab[2], tab[4], Encode(tab[3], tab[5]));
     }
     else if (argc > 1 && tab[1] == "decode")
     {
@@ -54,7 +50,7 @@ int main(int argc, char** argv)
             throw std::runtime_error("Wrong number of arguments");
         }
         cout << "nop" << endl;
-        Decode(tab[3], GetMessage(tab[2]));
+        Encode(tab[3], GetMessage(tab[2]));
     }
     else
     {
@@ -65,6 +61,4 @@ int main(int argc, char** argv)
 }
 
 /*
-
-
 std::cout << typeid(command).name() << '\n';*/
