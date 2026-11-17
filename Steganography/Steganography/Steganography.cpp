@@ -41,7 +41,7 @@ int main(int argc, char** argv)
             throw std::runtime_error("Wrong number of arguments");
         }
         cout << "fonctionne" << endl;
-        SetMessage(tab[2], Encode(tab[3], tab[5]));
+        SetMessage(tab[2], Encode(tab[3], tab[4]));
     }
     else if (argc > 1 && tab[1] == "decode")
     {
