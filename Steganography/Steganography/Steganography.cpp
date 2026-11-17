@@ -9,7 +9,6 @@
 #include "Encode.h"
 #include "Parser.h"
 
-using namespace std;
 
 int main(int argc, char** argv)
 {
@@ -26,21 +25,21 @@ int main(int argc, char** argv)
 
     */
 
-    string* tab = new string[argc];
+    std::string* tab = new std::string[argc];
     for (int i = 0; i < argc; i++)
     {
         tab[i] = argv[i];
-        cout << tab[i] << "\n";
+       std::cout << tab[i] << "\n";
     }
 
-    cout << argc << endl;
+    std::cout << argc << std::endl;
     if (argc > 1 && tab[1] == "encode")
     {
         if (argc != 5)
         {
             throw std::runtime_error("Wrong number of arguments");
         }
-        cout << "fonctionne" << endl;
+        std::cout << "fonctionne" << std::endl;
         SetMessage(tab[2], Encode(tab[3], tab[5]));
     }
     else if (argc > 1 && tab[1] == "decode")
@@ -49,7 +48,7 @@ int main(int argc, char** argv)
         {
             throw std::runtime_error("Wrong number of arguments");
         }
-        cout << "nop" << endl;
+        std::cout << "nop" << std::endl;
         Encode(tab[3], GetMessage(tab[2]));
     }
     else

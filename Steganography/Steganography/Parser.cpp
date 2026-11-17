@@ -1,12 +1,11 @@
 #include <string>
 #include <fstream>
-
-#include "Parser.h"
 #include <iostream>
 #include <bitset>
-#include <fstream>
 #include <stdexcept>
 
+#include "Parser.h"
+#include "Utilities.h"
 std::string GetMessage(std::string path_img)
 {
     std::ifstream read_file(path_img, std::ios::binary);
@@ -15,14 +14,14 @@ std::string GetMessage(std::string path_img)
     {
         throw std::runtime_error("File can't be opened");
     }
-
+    
     constexpr std::size_t buffer_size = 500;
     char buffer[buffer_size];
 
     read_file.read(buffer, buffer_size);
 
     std::streamsize bytes_read = read_file.gcount();
-
+    read_file.seekg(54, std::ios::beg);
     std::string result(buffer, static_cast<std::size_t>(bytes_read));
     read_file.close();
     return result;
