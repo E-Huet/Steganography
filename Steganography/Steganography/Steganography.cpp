@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <stdexcept>
+
 //#include <typeinfo>
 
 #include "Encode.h"
@@ -16,12 +17,11 @@ int main(int argc, char** argv)
 
     argument 1 -> encode / decode
     encode
-    argument 2 -> old_img.bmp
+    argument 2 -> img.bmp
     argument 3 -> key
-    argument 4 -> changed_img.bmp
-    argument 5 -> message
+    argument 4 -> message
     decode
-    argument 2 -> changed_img.bmp
+    argument 2 -> img.bmp
     argument 3 -> key
 
     */
@@ -36,12 +36,12 @@ int main(int argc, char** argv)
     cout << argc << endl;
     if (argc > 1 && tab[1] == "encode")
     {
-        if (argc != 6)
+        if (argc != 5)
         {
             throw std::runtime_error("Wrong number of arguments");
         }
         cout << "fonctionne" << endl;
-        SetMessage(tab[2], tab[4], Encode(tab[3], tab[5]));
+        SetMessage(tab[2], Encode(tab[3], tab[5]));
     }
     else if (argc > 1 && tab[1] == "decode")
     {
