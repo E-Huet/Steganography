@@ -1,33 +1,13 @@
 #include <string>
 #include "Parser.h"
+#include <iostream>
+#include <bitset>
+#include <fstream>
+#include <stdexcept>
 
 std::string GetMessage(std::string path_img)
 {
-	return std::string();
-}
-
-void SetMessage(std::string path_img, std::string path_new_img, std::string message_code)
-{
-	return;
-}
-
- //// Write file
-
-    std::ofstream write_file("example.bin", std::ios::binary);
-
-    if (!write_file.is_open())
-    {
-        throw std::runtime_error("File can't be opened");
-    }
-
-    std::string text = "Hello World!";
-
-    write_file.write(text.data(), text.size());
-    write_file.close();
-
-    //// Read file
-
-    std::ifstream read_file("example.bin", std::ios::binary);
+    std::ifstream read_file(path_img, std::ios::binary);
 
     if (!read_file.is_open())
     {
@@ -42,14 +22,11 @@ void SetMessage(std::string path_img, std::string path_new_img, std::string mess
     std::streamsize bytes_read = read_file.gcount();
 
     std::string result(buffer, static_cast<std::size_t>(bytes_read));
-
-    // Reset stream flags after reaching EOF
-    read_file.clear();
-
-    // Move cursor 10 bytes from beginning of file
-    read_file.seekg(10, std::ios::beg);
-
-    // Get cursor position
-    std::streampos cursor_position = read_file.tellg();
-
     read_file.close();
+    return result;
+}
+
+void SetMessage(std::string path_img, std::string path_new_img, std::string message_code)
+{
+	return;
+}
