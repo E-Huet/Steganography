@@ -9,11 +9,12 @@
 #include "Utilities.h"
 
 
-/// Mettre ifstream au lieu de fstream (tout changer en conséquences)
-/// Récup les octets autres que les pixels + mettre avec les pixels dans un vector -> c'es tça qu'on envoie à CreateImg
+/// Récup les octets autres que les pixels + mettre avec les pixels dans un vector -> c'est ça qu'on envoie à CreateNewImg
 /// 
+/// Rendre le code plus beau
 
-void CheckFile(std::fstream& file)
+
+void CheckFile(std::ifstream& file)
 {
     if (!file.is_open())
     {
@@ -37,7 +38,7 @@ void CheckFile(std::fstream& file)
 
 std::string GetMessage(std::string path_img)
 {
-    std::fstream read_file(path_img, std::ios::binary);
+    std::ifstream read_file(path_img, std::ios::binary);
 
 	CheckFile(read_file);
     read_file.seekg(0, std::ios::beg);
@@ -72,15 +73,25 @@ void SetMessage(std::string& path_old_img, std::string& path_new_img, std::strin
 {
 	std::vector<char> new_octets = {};
 
-	std::fstream file;
+	std::ifstream file;
 	file.open(path_old_img, std::ios::binary | std::ios::in | std::ios::out);
 
 	CheckFile(file);
 	
-	file.seekp(0, std::ios::end);
-	int size = file.tellp();
+	file.seekg(0, std::ios::end);
+	int size = file.tellg();
 	std::cout << "Size : " << size;
-	int pos_cursor = 54;
+	int pos_cursor = 0;
+
+	for (int i = 0; i < 54; i++)
+	{
+		file.seekg(pos_cursor, std::ios::beg);
+		char octet;
+		file.read(&octet, 1);
+		new_octets.push_back(octet);
+		pos_cursor++;
+	}
+	
 	int counter = 0;
 
 	std::cout << "...";
@@ -90,30 +101,29 @@ void SetMessage(std::string& path_old_img, std::string& path_new_img, std::strin
 		for (int j = 0; j < 8; j++)
 		{
 			std::cout << "rentre dans boucle 2";
-			file.seekp(pos_cursor, std::ios::beg);
-			//std::uint8_t octet = message_code[i] & 1u;
-
-			std::uint8_t bit = message_code[i] >> j & 1u;
-			//std::uint8_t bit = octet &j;
-
 			char octet;
+			file.seekg(pos_cursor, std::ios::beg);
+			if (counter == 3)
+			{
+				pos_cursor++;
+				counter = -1;
+			}
+			else
+			{
+				std::uint8_t bit = message_code[i] >> j & 1u;
+				octet = (file.tellg() & 0xFEu) | bit;
+			}
 			file.read(&octet, 1);
-
-			octet = (file.tellp() & 0xFEu) | bit;
 			new_octets.push_back(octet);
-			
-			CreateNewImg(path_new_img, new_octets);
 
 			pos_cursor++;
 			counter++;
-			if (counter == 3)
-			{
-				pos_cursor += 2;
-				counter = 0;
-			}
 		}
 	}
+	CreateNewImg(path_new_img, new_octets);
 	file.close();
-
 	return;
 }
+
+//std::uint8_t octet = message_code[i] & 1u;
+//std::uint8_t bit = octet &j;
