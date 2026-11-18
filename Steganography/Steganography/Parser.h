@@ -13,4 +13,4 @@ std::string GetMessage(std::string path_img);
 /// <param name="path_old_img"></param>
 /// <param name="path_new_img"></param>
 /// <param name="message_code"></param>
-void SetMessage(std::string& path_img, std::string message_code);
+void SetMessage(std::string& path_old_img, std::string& path_new_img, std::string message_code);

@@ -10,24 +10,24 @@ std::string GetMessage(std::string path_img)
 }
 
 
-void SetMessage(std::string& path_img, std::string message_code)
+void SetMessage(std::string& path_old_img, std::string& path_new_img, std::string message_code)
 {
 	std::fstream file;
-	file.open(path_img, std::ios::binary);
-
+	file.open(path_old_img, std::ios::binary | std::ios::ate);
+	int size = file.tellp();
 	
 	if (!file.is_open())
 	{
-		std::cout << "Ouverture fail";
+		//std::cout << "Ouverture fail";
 		throw std::exception("File can't be opened");
 	}
-	std::cout << "Ouverture sucess";
+	//std::cout << "Ouverture sucess";
 
 	int pos_cursor = 54;
 	int counter = 0;
 
 	std::cout << "...";
-	for (int i = 0; i < path_img.size()-pos_cursor && i < message_code.size() ; i++) // taille de chemin et pas du fichier, à corriger
+	for (int i = 0; i < size - pos_cursor && i < message_code.size() ; i++)
 	{
 		std::cout << "rentre dans boucle 1";
 		for (int j = 0; j < 8; j++)
