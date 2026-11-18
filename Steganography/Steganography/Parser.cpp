@@ -8,18 +8,23 @@
 #include "Parser.h"
 #include "Utilities.h"
 
-bool CheckFile(std::string path_img)
+void CheckFile(std::fstream& file)
 {
-    std::ifstream read_file(path_img, std::ios::binary);
-    if (!read_file.is_open())
+    if (!file.is_open())
     {
         throw std::runtime_error("File can't be opened");
     }
-    read_file.seekg(0, std::ios::end);
-    std::streamsize size = read_file.tellg();
-    std::vector<std::uint8_t> data(static_cast<std::size_t>(size));
+	
+    file.seekg(0, std::ios::beg);
+	char octet1;
+	file.read(&octet1, 1);
+	file.seekg(0, std::ios::cur);
+	char octet2;
+	file.read(&octet2, 1);
 
-    if (data[0] != 'B' || data[1] != 'M')
+	std::cout << "Octet 1 : " << octet1 << " | Octet 2 : " << octet2 << std::endl;
+
+    if (octet1 != 'B' || octet2 != 'M')
     {
         throw std::runtime_error("Not a BMP file");
     }
@@ -27,12 +32,9 @@ bool CheckFile(std::string path_img)
 
 std::string GetMessage(std::string path_img)
 {
-    std::ifstream read_file(path_img, std::ios::binary);
+    std::fstream read_file(path_img, std::ios::binary);
 
-    if (!CheckFile(path_img))
-    {
-        throw std::runtime_error("Error File");
-    }
+	CheckFile(read_file);
     read_file.seekg(0, std::ios::beg);
     std::size_t cursor = 0;
     std::uint32_t length = 0;
@@ -51,25 +53,31 @@ std::string GetMessage(std::string path_img)
     return result;
 }
 
+void CreateNewImg(std::string& path_new_img, std::vector<char> new_octets)
+{
+	std::ofstream new_file(path_new_img);
+
+	for (int i = 0; i < new_octets.size(); i++)
+	{
+		new_file.write(&new_octets[i], 1);
+	}
+}
 
 void SetMessage(std::string& path_old_img, std::string& path_new_img, std::string message_code)
 {
-	std::fstream file;
-	file.open(path_old_img, std::ios::binary | std::ios::ate);
-	int size = file.tellp();
-	
-	if (!file.is_open())
-	{
-		//std::cout << "Ouverture fail";
-		throw std::exception("File can't be opened");
-	}
-	//std::cout << "Ouverture sucess";
+	std::vector<char> new_octets = {};
 
+	std::fstream file;
+	file.open(path_old_img, std::ios::binary | std::ios::in | std::ios::out | std::ios::ate);
+
+	CheckFile(file);
+
+	int size = file.tellp();
 	int pos_cursor = 54;
 	int counter = 0;
 
 	std::cout << "...";
-	for (int i = 0; i < size - pos_cursor && i < message_code.size() ; i++)
+	for (int i = 0; i < size - pos_cursor && i < message_code.size(); i++)
 	{
 		std::cout << "rentre dans boucle 1";
 		for (int j = 0; j < 8; j++)
@@ -78,14 +86,16 @@ void SetMessage(std::string& path_old_img, std::string& path_new_img, std::strin
 			file.seekp(pos_cursor, std::ios::beg);
 			//std::uint8_t octet = message_code[i] & 1u;
 
-			std::uint8_t bit = message_code[i] >> j &1u;
+			std::uint8_t bit = message_code[i] >> j & 1u;
 			//std::uint8_t bit = octet &j;
-			
-			char test;
-			file.read(&test, 1);
-			test = (file.tellp() & 0xFEu) | bit;
 
-			file.write(&test, 1);
+			char octet;
+			file.read(&octet, 1);
+
+			octet = (file.tellp() & 0xFEu) | bit;
+			new_octets.push_back(octet);
+			
+			CreateNewImg(path_new_img, new_octets);
 
 			pos_cursor++;
 			counter++;
@@ -97,5 +107,6 @@ void SetMessage(std::string& path_old_img, std::string& path_new_img, std::strin
 		}
 	}
 	file.close();
+
 	return;
 }
