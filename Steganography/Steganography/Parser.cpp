@@ -12,7 +12,7 @@ std::string GetMessage(std::string path_img)
 
 void SetMessage(std::string& path_img, std::string message_code)
 {
-	std::ofstream file;
+	std::fstream file;
 	file.open(path_img, std::ios::binary);
 
 	
@@ -27,7 +27,7 @@ void SetMessage(std::string& path_img, std::string message_code)
 	int counter = 0;
 
 	std::cout << "...";
-	for (int i = 0; i < path_img.size()-pos_cursor || i < message_code.size() ; i++)
+	for (int i = 0; i < path_img.size()-pos_cursor && i < message_code.size() ; i++) // taille de chemin et pas du fichier, à corriger
 	{
 		std::cout << "rentre dans boucle 1";
 		for (int j = 0; j < 8; j++)
@@ -36,10 +36,14 @@ void SetMessage(std::string& path_img, std::string message_code)
 			file.seekp(pos_cursor, std::ios::beg);
 			//std::uint8_t octet = message_code[i] & 1u;
 
-			std::uint8_t bit = message_code[i] &j;
+			std::uint8_t bit = message_code[i] >> j &1u;
 			//std::uint8_t bit = octet &j;
 			
-			file.tellp() = (file.tellp() & 0xFEu) | bit;
+			char test;
+			file.read(&test, 1);
+			test = (file.tellp() & 0xFEu) | bit;
+
+			file.write(&test, 1);
 
 			pos_cursor++;
 			counter++;
@@ -50,8 +54,6 @@ void SetMessage(std::string& path_img, std::string message_code)
 			}
 		}
 	}
-	//file.write(text.data(), text.size());
-
 	file.close();
 	return;
 }
