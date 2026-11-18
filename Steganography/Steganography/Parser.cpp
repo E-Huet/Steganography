@@ -8,6 +8,11 @@
 #include "Parser.h"
 #include "Utilities.h"
 
+
+/// Mettre ifstream au lieu de fstream (tout changer en conséquences)
+/// Récup les octets autres que les pixels + mettre avec les pixels dans un vector -> c'es tça qu'on envoie à CreateImg
+/// 
+
 void CheckFile(std::fstream& file)
 {
     if (!file.is_open())
@@ -68,11 +73,13 @@ void SetMessage(std::string& path_old_img, std::string& path_new_img, std::strin
 	std::vector<char> new_octets = {};
 
 	std::fstream file;
-	file.open(path_old_img, std::ios::binary | std::ios::in | std::ios::out | std::ios::ate);
+	file.open(path_old_img, std::ios::binary | std::ios::in | std::ios::out);
 
 	CheckFile(file);
-
+	
+	file.seekp(0, std::ios::end);
 	int size = file.tellp();
+	std::cout << "Size : " << size;
 	int pos_cursor = 54;
 	int counter = 0;
 
