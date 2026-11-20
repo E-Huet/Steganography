@@ -54,18 +54,61 @@ std::string GetMessage(std::string path_img)
     read_file.read(buffer, buffer_size);
 
     std::streamsize bytes_read = read_file.gcount();
-    std::string result(buffer, static_cast<std::size_t>(bytes_read));
+    std::string result(buffer, static_cast<std::size_t>(bytes_read)); 
     read_file.close();
     return result;
 }
 
-void CreateNewImg(std::string& path_new_img, std::vector<char> new_octets)
+void CopieImg(std::string& path_new_img, std::vector<char> buffer)
 {
-	std::ofstream new_file(path_new_img);
+	std::ofstream new_file(path_new_img, std::ios::binary);
 
-	for (int i = 0; i < new_octets.size(); i++)
+	if (!new_file.is_open())
 	{
-		new_file.write(&new_octets[i], 1);
+		throw std::runtime_error("File can't be opened");
+	}
+
+	for (int i = 0; i < buffer.size(); ++i)
+	{
+		new_file.write(&buffer[i], 1);
+	}
+
+	new_file.close();
+}
+
+void CodeImg(std::string& path_new_img, std::string message_code)
+{
+	std::fstream file(path_new_img, std::ios::binary);
+	file.seekp(0, std::ios::end);
+	std::size_t size = file.tellp();
+
+	int pos_cursor = 54;
+	int counter = 1;
+
+	for (int i = 0; i < size - pos_cursor && i < message_code.size(); i++)
+	{
+		std::cout << "rentre dans boucle 1";
+		for (int j = 0; j < 8; j++)
+		{
+			std::cout << "rentre dans boucle 2";
+			char octet;
+			file.seekp(pos_cursor, std::ios::beg);
+			file.read(&octet, 1);
+
+			if (counter == 4)
+			{
+				pos_cursor++;
+				counter = 0;
+			}
+			else
+			{
+				std::uint8_t bit = message_code[i] >> j & 1u;
+				octet = (file.tellp() & 0xFEu) | bit;
+				file.write(&octet, 1);
+			}
+			pos_cursor++;
+			counter++;
+		}
 	}
 }
 
@@ -79,51 +122,17 @@ void SetMessage(std::string& path_old_img, std::string& path_new_img, std::strin
 	CheckFile(file);
 	
 	file.seekg(0, std::ios::end);
-	int size = file.tellg();
-	std::cout << "Size : " << size;
-	int pos_cursor = 0;
+	std::size_t size = file.tellg();
+	//std::cout << "Size : " << size;
 
-	for (int i = 0; i < 54; i++)
-	{
-		file.seekg(pos_cursor, std::ios::beg);
-		char octet;
-		file.read(&octet, 1);
-		new_octets.push_back(octet);
-		pos_cursor++;
-	}
-	
-	int counter = 0;
+	file.seekg(0, std::ios::beg);
+	std::vector<char> buffer_char(size);
+	file.read(buffer_char.data(), size);
 
-	std::cout << "...";
-	for (int i = 0; i < size - pos_cursor && i < message_code.size(); i++)
-	{
-		std::cout << "rentre dans boucle 1";
-		for (int j = 0; j < 8; j++)
-		{
-			std::cout << "rentre dans boucle 2";
-			char octet;
-			file.seekg(pos_cursor, std::ios::beg);
-			if (counter == 3)
-			{
-				pos_cursor++;
-				counter = -1;
-			}
-			else
-			{
-				std::uint8_t bit = message_code[i] >> j & 1u;
-				octet = (file.tellg() & 0xFEu) | bit;
-			}
-			file.read(&octet, 1);
-			new_octets.push_back(octet);
+	CopieImg(path_new_img, buffer_char);
 
-			pos_cursor++;
-			counter++;
-		}
-	}
-	CreateNewImg(path_new_img, new_octets);
+	CodeImg(path_new_img, message_code);
+
 	file.close();
 	return;
 }
-
-//std::uint8_t octet = message_code[i] & 1u;
-//std::uint8_t bit = octet &j;

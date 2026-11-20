@@ -13,8 +13,6 @@
 int main(int argc, char** argv)
 {
     /*
-
-
     argument 1 -> encode / decode
     encode
     argument 2 -> old_img.bmp
@@ -24,7 +22,6 @@ int main(int argc, char** argv)
     decode
     argument 2 -> new_img.bmp
     argument 3 -> key
-
     */
 
     std::string* tab = new std::string[argc];
