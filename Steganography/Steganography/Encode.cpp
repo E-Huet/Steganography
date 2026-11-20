@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "Encode.h"
 
 std::string Encode(std::string key, std::string message)
@@ -17,5 +19,6 @@ std::string Encode(std::string key, std::string message)
 			indice_key = 0;
 		}
 	}
+	std::cout << message_code;
 	return message_code;
 }

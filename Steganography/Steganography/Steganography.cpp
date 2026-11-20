@@ -48,7 +48,7 @@ int main(int argc, char** argv)
             throw std::runtime_error("Wrong number of arguments");
         }
         std::cout << "nop" << std::endl;
-        Encode(tab[3], GetMessage(tab[2]));
+        std::cout << "Resultat : " << Encode(tab[3], GetMessage(tab[2]));
     }
     else
     {

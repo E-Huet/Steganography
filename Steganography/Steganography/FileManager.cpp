@@ -87,7 +87,7 @@ std::vector<std::size_t> GetColorBytePositions(std::vector<std::uint8_t> data)
 std::string GetMessage(std::string path_img)
 {
     std::ifstream read_file(path_img, std::ios::binary);
-    CheckFile(path_img);
+    CheckFile(read_file);
     read_file.seekg(0, std::ios::end);
     std::streamsize size = read_file.tellg();
     std::vector<std::uint8_t> data(static_cast<std::size_t>(size));
@@ -108,6 +108,7 @@ std::string GetMessage(std::string path_img)
     {
         message += static_cast<char>(ReadByte(data, positions, cursor));
     }
+    std::cout << "Get Message :" << message;
     return message;
 }
 
