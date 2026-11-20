@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "Parser.h"
+#include "FileManager.h"
 #include "Utilities.h"
 
 bool CheckFile(std::string path_img)
@@ -44,7 +44,7 @@ std::uint8_t ReadByte(const std::vector<std::uint8_t>& data,const std::vector<st
     return byte;
 }
 
-static std::uint32_t Readfrom(const std::vector<std::uint8_t>& data, std::size_t offset)
+std::uint32_t Read32(const std::vector<std::uint8_t>& data, std::size_t offset)
 {
     return  static_cast<std::uint32_t>(data[offset])
         | (static_cast<std::uint32_t>(data[offset + 1]) << 8)
@@ -55,14 +55,17 @@ static std::uint32_t Readfrom(const std::vector<std::uint8_t>& data, std::size_t
 
 std::vector<std::size_t> GetColorBytePositions(std::vector<std::uint8_t> data)
 {
-    std::uint32_t pixel_offset = Readfrom(data, 10);
-    std::int32_t  width = static_cast<std::int32_t>(Readfrom(data, 18));
-    std::int32_t  height = static_cast<std::int32_t>(Readfrom(data, 22));
-    std::uint16_t bpp = static_cast<std::uint16_t>(data[28] | (data[29] << 8));
+    std::uint32_t pixel_offset = Read32(data, 10);
+    std::int32_t  width = static_cast<std::int32_t>(Read32(data, 18));
+    std::int32_t  height = static_cast<std::int32_t>(Read32(data, 22));
 
     std::size_t row_bytes = static_cast<std::size_t>(width) * 3;   // octets utiles
     std::size_t row_size = (row_bytes + 3) / 4 * 4;
-
+    
+    if (height < 0)
+    {
+        height = -height;
+    }
     std::vector<std::size_t> positions;
     positions.reserve(row_bytes * static_cast<std::size_t>(height));
 
@@ -84,14 +87,16 @@ std::string GetMessage(std::string path_img)
     std::streamsize size = read_file.tellg();
     std::vector<std::uint8_t> data(static_cast<std::size_t>(size));
     read_file.seekg(0, std::ios::beg);
-    ///Ce qui est nécessaire pour la fonction RHB
+    ///Ce qui est nécessaire pour la fonction RB
     std::vector<std::size_t> positions = GetColorBytePositions(data);
     std::size_t cursor = 0;
     std::uint32_t length = 0;
+
     for (int i = 0; i < 4; ++i)
     {
         length = (length << 8) | ReadByte(data, positions, cursor);
     }
+
     std::string message;
     message.reserve(length);
     for (std::uint32_t i = 0; i < length; ++i)

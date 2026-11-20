@@ -7,7 +7,7 @@
 //#include <typeinfo>
 
 #include "Encode.h"
-#include "Parser.h"
+#include "FileManager.h"
 
 
 int main(int argc, char** argv)
