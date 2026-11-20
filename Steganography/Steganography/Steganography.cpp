@@ -13,7 +13,6 @@
 int main(int argc, char** argv)
 {
     /*
-
     argument 1 -> encode / decode
     encode
     argument 2 -> old_img.bmp
@@ -23,7 +22,6 @@ int main(int argc, char** argv)
     decode
     argument 2 -> new_img.bmp
     argument 3 -> key
-
     */
 
     std::string* tab = new std::string[argc];
@@ -40,7 +38,7 @@ int main(int argc, char** argv)
         {
             throw std::runtime_error("Wrong number of arguments");
         }
-        cout << "fonctionne" << endl;
+        std::cout << "fonctionne" << std::endl;
         SetMessage(tab[2], tab[3], Encode(tab[4], tab[5]));
     }
     else if (argc > 1 && tab[1] == "decode")
