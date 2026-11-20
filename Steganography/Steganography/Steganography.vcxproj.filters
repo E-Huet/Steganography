@@ -21,7 +21,7 @@
     <ClCompile Include="Encode.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Parser.cpp">
+    <ClCompile Include="FileManager.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Utilities.cpp">
@@ -32,7 +32,7 @@
     <ClInclude Include="Encode.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Parser.h">
+    <ClInclude Include="FileManager.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Utilities.h">
