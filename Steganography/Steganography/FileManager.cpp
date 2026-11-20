@@ -8,23 +8,28 @@
 #include "FileManager.h"
 #include "Utilities.h"
 
-bool CheckFile(std::string path_img)
+
+void CheckFile(std::ifstream& file)
 {
-    std::fstream read_file(path_img, std::ios::binary);
-    if (!read_file.is_open())
+    if (!file.is_open())
     {
         throw std::runtime_error("File can't be opened");
     }
-   
 
-    /*if (data[0] != 'B' || data[1] != 'M')
+    file.seekg(0, std::ios::beg);
+    char octet1;
+    file.read(&octet1, 1);
+    file.seekg(0, std::ios::cur);
+    char octet2;
+    file.read(&octet2, 1);
+
+    std::cout << "Octet 1 : " << octet1 << " | Octet 2 : " << octet2 << std::endl;
+
+    if (octet1 != 'B' || octet2 != 'M')
     {
         throw std::runtime_error("Not a BMP file");
     }
-    */
 }
-
-
 
 std::uint8_t ReadByte(const std::vector<std::uint8_t>& data,const std::vector<std::size_t>& positions,std::size_t& cursor)
 {
@@ -52,7 +57,6 @@ std::uint32_t Read32(const std::vector<std::uint8_t>& data, std::size_t offset)
         | (static_cast<std::uint32_t>(data[offset + 3]) << 24);
 }
 
-
 std::vector<std::size_t> GetColorBytePositions(std::vector<std::uint8_t> data)
 {
     std::uint32_t pixel_offset = Read32(data, 10);
@@ -61,7 +65,7 @@ std::vector<std::size_t> GetColorBytePositions(std::vector<std::uint8_t> data)
 
     std::size_t row_bytes = static_cast<std::size_t>(width) * 3;   // octets utiles
     std::size_t row_size = (row_bytes + 3) / 4 * 4;
-    
+
     if (height < 0)
     {
         height = -height;
@@ -77,36 +81,8 @@ std::vector<std::size_t> GetColorBytePositions(std::vector<std::uint8_t> data)
         }
     }
     return positions;
-#include "Parser.h"
-#include "Utilities.h"
-
-
-/// Récup les octets autres que les pixels + mettre avec les pixels dans un vector -> c'est ça qu'on envoie à CreateNewImg
-/// 
-/// Rendre le code plus beau
-
-
-void CheckFile(std::ifstream& file)
-{
-    if (!file.is_open())
-    {
-        throw std::runtime_error("File can't be opened");
-    }
-	
-    file.seekg(0, std::ios::beg);
-	char octet1;
-	file.read(&octet1, 1);
-	file.seekg(0, std::ios::cur);
-	char octet2;
-	file.read(&octet2, 1);
-
-	std::cout << "Octet 1 : " << octet1 << " | Octet 2 : " << octet2 << std::endl;
-
-    if (octet1 != 'B' || octet2 != 'M')
-    {
-        throw std::runtime_error("Not a BMP file");
-    }
 }
+
 
 std::string GetMessage(std::string path_img)
 {
@@ -133,41 +109,6 @@ std::string GetMessage(std::string path_img)
         message += static_cast<char>(ReadByte(data, positions, cursor));
     }
     return message;
-}
-
-
-void SetMessage(std::string& path_img, std::string message_code)
-{
-	std::ofstream file;
-	file.open(path_img, std::ios::binary);
-
-	if (!file.is_open())
-	{
-		throw std::exception("File can't be opened");
-	}
-
-
-
-
-	//file.write(text.data(), text.size());
-
-	CheckFile(read_file);
-    read_file.seekg(0, std::ios::beg);
-    std::size_t cursor = 0;
-    std::uint32_t length = 0;
-    for (int i = 0; i < 4; ++i)
-    {
-        length = (length << 8);
-    }
-    constexpr std::size_t buffer_size = 500;
-    char buffer[buffer_size];
-
-    read_file.read(buffer, buffer_size);
-
-    std::streamsize bytes_read = read_file.gcount();
-    std::string result(buffer, static_cast<std::size_t>(bytes_read)); 
-    read_file.close();
-    return result;
 }
 
 void CopieImg(std::string& path_new_img, std::vector<char> buffer)
