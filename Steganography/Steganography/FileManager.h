@@ -1,14 +1,14 @@
 #pragma once
 
 /// <summary>
-/// Renvoie le message codé dans l'image en paramètre
+/// Renvoie le message codÃ© dans l'image en paramÃ¨tre
 /// </summary>
 /// <param name="path_img"></param>
 /// <returns></returns>
 std::string GetMessage(std::string path_img);
 
 /// <summary>
-/// Code le message donné en paramètre dans l'image donnée en paramètre
+/// Code le message donnÃ© en paramÃ¨tre dans l'image donnÃ©e en paramÃ¨tre
 /// </summary>
 /// <param name="path_old_img"></param>
 /// <param name="path_new_img"></param>
