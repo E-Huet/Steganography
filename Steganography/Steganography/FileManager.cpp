@@ -23,22 +23,21 @@ void CheckFile(std::ifstream& file)
     char octet2;
     file.read(&octet2, 1);
 
-    std::cout << "Octet 1 : " << octet1 << " | Octet 2 : " << octet2 << std::endl;
-
     if (octet1 != 'B' || octet2 != 'M')
     {
         throw std::runtime_error("Not a BMP file");
     }
 }
 
-std::uint8_t ReadByte(const std::vector<std::uint8_t>& data,const std::vector<std::size_t>& positions,std::size_t& cursor)
+std::uint8_t ReadByte(const std::vector<char>& data,const std::vector<std::size_t>& positions,std::size_t& cursor)
 {
     if (cursor + 8 > positions.size())
     {
         throw std::runtime_error("Image too small");
     }
+
     std::uint8_t byte = 0;
-    for (int k = 7; k >= 0; --k)                         
+    for (int k = 0; k < 8; k++)                         
     {
         if (GetBit(data[positions[cursor]], 0))           
         {
@@ -49,15 +48,15 @@ std::uint8_t ReadByte(const std::vector<std::uint8_t>& data,const std::vector<st
     return byte;
 }
 
-std::uint32_t Read32(const std::vector<std::uint8_t>& data, std::size_t offset)
+std::uint32_t Read32(const std::vector<char>& data, std::size_t offset)
 {
-    return  static_cast<std::uint32_t>(data[offset])
-        | (static_cast<std::uint32_t>(data[offset + 1]) << 8)
-        | (static_cast<std::uint32_t>(data[offset + 2]) << 16)
-        | (static_cast<std::uint32_t>(data[offset + 3]) << 24);
+    return  static_cast<std::uint32_t>(static_cast<unsigned char>(data[offset]))
+        | (static_cast<std::uint32_t>(static_cast<unsigned char>(data[offset + 1])) << 8)
+        | (static_cast<std::uint32_t>(static_cast<unsigned char>(data[offset + 2])) << 16)
+        | (static_cast<std::uint32_t>(static_cast<unsigned char>(data[offset + 3])) << 24);
 }
 
-std::vector<std::size_t> GetColorBytePositions(std::vector<std::uint8_t> data)
+std::vector<std::size_t> GetColorBytePositions(std::vector<char> data)
 {
     std::uint32_t pixel_offset = Read32(data, 10);
     std::int32_t  width = static_cast<std::int32_t>(Read32(data, 18));
@@ -87,11 +86,15 @@ std::vector<std::size_t> GetColorBytePositions(std::vector<std::uint8_t> data)
 std::string GetMessage(std::string path_img)
 {
     std::ifstream read_file(path_img, std::ios::binary);
-    CheckFile(path_img);
+    CheckFile(read_file);
+
     read_file.seekg(0, std::ios::end);
     std::streamsize size = read_file.tellg();
-    std::vector<std::uint8_t> data(static_cast<std::size_t>(size));
+
     read_file.seekg(0, std::ios::beg);
+    std::vector<char> data(static_cast<std::size_t>(size));
+    read_file.read(data.data(), size);
+
     ///Ce qui est nécessaire pour la fonction RB
     std::vector<std::size_t> positions = GetColorBytePositions(data);
     std::size_t cursor = 0;
@@ -130,38 +133,43 @@ void CopieImg(std::string& path_new_img, std::vector<char> buffer)
 
 void CodeImg(std::string& path_new_img, std::string message_code)
 {
-	std::fstream file(path_new_img, std::ios::binary);
-	file.seekp(0, std::ios::end);
-	std::size_t size = file.tellp();
+    std::ifstream read_file(path_new_img, std::ios::binary);
+    CheckFile(read_file);
 
-	int pos_cursor = 54;
-	int counter = 1;
+    read_file.seekg(0, std::ios::end);
+    int size = read_file.tellg();
+    std::vector<char> data(size);
+    read_file.seekg(0, std::ios::beg);
+    read_file.read(data.data(), size);
 
-	for (int i = 0; i < size - pos_cursor && i < message_code.size(); i++)
-	{
-		std::cout << "rentre dans boucle 1";
-		for (int j = 0; j < 8; j++)
-		{
-			std::cout << "rentre dans boucle 2";
-			char octet;
-			file.seekp(pos_cursor, std::ios::beg);
-			file.read(&octet, 1);
+    std::vector<size_t> pixels_color_positions = GetColorBytePositions(data);
 
-			if (counter == 4)
-			{
-				pos_cursor++;
-				counter = 0;
-			}
-			else
-			{
-				std::uint8_t bit = message_code[i] >> j & 1u;
-				octet = (file.tellp() & 0xFEu) | bit;
-				file.write(&octet, 1);
-			}
-			pos_cursor++;
-			counter++;
-		}
-	}
+    read_file.close();
+
+    int pos_cursor = 0;
+
+    for (int i = 0; i < message_code.size(); i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            if (pos_cursor >= pixels_color_positions.size())
+            {
+                throw std::runtime_error("Message too long for the image");
+            }
+
+            std::size_t pos = pixels_color_positions[pos_cursor];
+            char octet = data[pos];
+
+            std::uint8_t bit = message_code[i] >> j & 1u;
+            octet = (octet & 0xFEu) | bit;
+            data[pos] = octet;
+
+            pos_cursor++;
+        }
+    }
+
+    std::ofstream file(path_new_img, std::ios::binary);
+    file.write(data.data(), size);
 }
 
 void SetMessage(std::string& path_old_img, std::string& path_new_img, std::string message_code)
