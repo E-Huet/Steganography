@@ -38,7 +38,6 @@ int main(int argc, char** argv)
         {
             throw std::runtime_error("Wrong number of arguments");
         }
-        std::cout << "fonctionne" << std::endl;
         SetMessage(tab[2], tab[3], Encode(tab[4], tab[5]));
     }
     else if (argc > 1 && tab[1] == "decode")
@@ -47,8 +46,7 @@ int main(int argc, char** argv)
         {
             throw std::runtime_error("Wrong number of arguments");
         }
-        std::cout << "nop" << std::endl;
-        std::cout << "Resultat : " << Encode(tab[3], GetMessage(tab[2]));
+        std::cout << "Message : " << Decode(tab[3], GetMessage(tab[2]));
     }
     else
     {
@@ -57,6 +55,3 @@ int main(int argc, char** argv)
 
     return 0;
 }
-
-/*
-std::cout << typeid(command).name() << '\n';*/

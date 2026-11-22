@@ -8,3 +8,5 @@
 /// <param name="message"></param>
 /// <returns></returns>
 std::string Encode(std::string key, std::string message);
+
+std::string Decode(std::string key, std::string message);
